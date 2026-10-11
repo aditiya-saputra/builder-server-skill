@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bss"
+version = "0.1.0"
+description = "Discord server structure adapter for builder-server-skill"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "requests>=2.31",
+    "PyYAML>=6.0",
+    "jsonschema>=4.20",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+bss = "bss.__main__:main"
+
+[tool.setuptools]
+packages = ["bss"]
+
+[tool.pytest.ini_options]
+testpaths = ["../tests"]
+addopts = "-q"

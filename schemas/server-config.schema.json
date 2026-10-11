@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/builder-server-skill/schemas/server-config.schema.json",
+  "title": "builder-server-skill server config",
+  "description": "Deklarasi rancangan struktur server Discord. Dipakai adapter untuk membandingkan keadaan diinginkan dengan keadaan aktual.",
+  "type": "object",
+  "required": ["version", "guild"],
+  "additionalProperties": false,
+
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Versi skema konfigurasi."
+    },
+
+    "guild": {
+      "type": "string",
+      "pattern": "^[0-9]{17,20}$",
+      "description": "Snowflake guild (server) yang menjadi target."
+    },
+
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verification_level": {
+          "type": "integer",
+          "enum": [0, 1, 2, 3, 4],
+          "description": "0=NONE 1=LOW 2=MEDIUM 3=HIGH 4=VERY_HIGH. Jangan turunkan tanpa konfirmasi."
+        },
+        "default_message_notifications": {
+          "type": "integer",
+          "enum": [0, 1],
+          "description": "0=ALL_MESSAGES 1=ONLY_MENTIONS."
+        },
+        "afk_channel": {
+          "$ref": "#/$defs/key",
+          "description": "key dari channel voice yang dijadikan AFK."
+        },
+        "system_channel": {
+          "$ref": "#/$defs/key",
+          "description": "key dari channel penerima notifikasi join/boost."
+        },
+        "community": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "rules_channel", "public_updates_channel"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Aktifkan feature COMMUNITY. Mengubah urutan build (lihat SKILL.md §4.2)."
+            },
+            "rules_channel": {
+              "$ref": "#/$defs/key",
+              "description": "key channel teks yang jadi rules channel."
+            },
+            "public_updates_channel": {
+              "$ref": "#/$defs/key",
+              "description": "key channel teks untuk pengumuman Community. Boleh sama dengan rules_channel."
+            }
+          }
+        }
+      }
+    },
+
+    "roles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/role" },
+      "description": "Role non-managed. Role managed milik bot tidak pernah disentuh adapter."
+    },
+
+    "categories": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/category" }
+    }
+  },
+
+  "$defs": {
+
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,40}$",
+      "description": "Identifier internal untuk referensi antar-field di config. TIDAK pernah dikirim ke Discord."
+    },
+
+    "permission_bit": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Nama bit, mis. SEND_MESSAGES. Daftar lengkap di docs/permissions.md."
+        },
+        {
+          "type": ["integer", "string"],
+          "pattern": "^[0-9]+$",
+          "description": "Nilai bit mentah, mis. 6144."
+        }
+      ]
+    },
+
+    "permission_list": {
+      "oneOf": [
+        { "type": "array", "items": { "$ref": "#/$defs/permission_bit" }, "uniqueItems": true },
+        { "$ref": "#/$defs/permission_bit" }
+      ]
+    },
+
+    "color": {
+      "oneOf": [
+        { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "Hex, mis. #EF4444" },
+        { "type": "integer", "minimum": 0, "maximum": 16777215, "description": "Desimal mentah." }
+      ]
+    },
+
+    "role": {
+      "type": "object",
+      "required": ["key", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "permissions": {
+          "$ref": "#/$defs/permission_list",
+          "default": [],
+          "description": "Gabungan izin guild-level role ini."
+        },
+        "color": { "$ref": "#/$defs/color" },
+        "hoist": { "type": "boolean", "default": false, "description": "Tampil terpisah di sidebar member." },
+        "mentionable": { "type": "boolean", "default": false },
+        "position": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Urutan di hierarki. Angka makin besar = makin tinggi. Harus eksplisit (SKILL.md §4.5)."
+        }
+      }
+    },
+
+    "overwrite": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allow": { "$ref": "#/$defs/permission_list" },
+        "deny": { "$ref": "#/$defs/permission_list" }
+      }
+    },
+
+    "overwrites": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Permission overwrite. Kunci: 'everyone' atau key role.",
+      "properties": {
+        "everyone": { "$ref": "#/$defs/overwrite" }
+      },
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9-]{0,40}$": { "$ref": "#/$defs/overwrite" }
+      }
+    },
+
+    "channel_type": {
+      "type": "string",
+      "enum": ["text", "announcement", "forum", "voice", "stage"],
+      "description": "announcement & forum butuh feature NEWS (lihat SKILL.md §4.2)."
+    },
+
+    "channel": {
+      "type": "object",
+      "required": ["key", "name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "type": { "$ref": "#/$defs/channel_type" },
+        "topic": { "type": "string", "maxLength": 1024 },
+        "slowmode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 21600,
+          "description": "Detik antar pesan. 0 = tanpa jeda."
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Urutan dalam kategori. Harus eksplisit baukan mengandalkan urutan pembuatan."
+        },
+        "overwrites": { "$ref": "#/$defs/overwrites" }
+      }
+    },
+
+    "category": {
+      "type": "object",
+      "required": ["key", "name", "channels"],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "position": { "type": "integer", "minimum": 0 },
+        "overwrites": {
+          "$ref": "#/$defs/overwrites",
+          "description": "Diturunkan oleh semua channel di dalamnya, kecuali di-override di level channel."
+        },
+        "channels": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/channel" },
+          "minItems": 1
+        }
+      }
+    }
+  }
+}

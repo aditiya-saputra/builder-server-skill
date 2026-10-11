@@ -1,0 +1,56 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+.env/
+.envrc
+
+# Distribusi / build
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+pip-wheel-metadata/
+
+# Test & coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# ── Keamanan ────────────────────────────────────────────────────────────────
+# Token TIDAK BOLEH masuk repo. Lihat SKILL.md §7.
+.env
+.env.*
+!.env.example
+!.env-discord.example
+*.token
+secrets/
+credentials*
+
+# Berkas konfigurasi personal pengguna (bukan template)
+/my-server.yaml
+/local-*.yaml
+/*-local.yaml
+
+# ── Editor / OS ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

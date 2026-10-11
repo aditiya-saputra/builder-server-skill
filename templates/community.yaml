@@ -1,0 +1,394 @@
+# community.yaml — server komunitas umum
+#
+# Titik awal untuk server publik: onboarding jelas, channel read-only terpisah,
+# kategori minat, dukungan, dan area staf tersembunyi.
+#
+# Jalankan:
+#   python -m bss plan -c ../templates/community.yaml -g <GUILD_ID>
+#
+# PENTING — dua jebakan yang membuat template ini berurutan begini:
+#   1. channel `announcement` butuh feature NEWS, NEWS butuh Community aktif
+#   2. saat Community aktif, `rules_channel` & `public_updates_channel` terkunci
+#      (tak bisa dihapus / di-null / di-repoint)
+# Adapter menangani urutannya otomatis. Jangan PATCH `features` sendirian.
+
+version: 1
+guild: "1528939155546181642"          # GANTI dengan guild kamu
+
+settings:
+  verification_level: 2               # MEDIUM — anti-raid
+  default_message_notifications: 1    # ONLY_MENTIONS
+  system_channel: obrolan
+  afk_channel: afk
+  community:
+    enabled: true
+    rules_channel: rules
+    public_updates_channel: staff-chat
+
+# ── Role ──────────────────────────────────────────────────────────────────────
+# Hierarki: angka position makin besar = makin tinggi.
+# Beri role bot kamu position di atas semua role yang ingin diurusnya.
+roles:
+  - key: admin
+    name: "👑 Admin"
+    permissions: [ADMINISTRATOR]
+    color: "#EF4444"
+    hoist: true
+    mentionable: false
+    position: 100
+
+  - key: moderator
+    name: "🛡️ Moderator"
+    permissions:
+      - KICK_MEMBERS
+      - BAN_MEMBERS
+      - MANAGE_MESSAGES
+      - MODERATE_MEMBERS
+      - VIEW_AUDIT_LOG
+      # Tiga izin di bawah ini sering terlupa, dan akibatnya moderator tidak
+      # bisa berhenti dari voice maupun mengganti nick yang melanggar.
+      - MUTE_MEMBERS
+      - MOVE_MEMBERS
+      - CHANGE_NICKNAME
+    color: "#344700"
+    hoist: true
+    mentionable: true
+    position: 90
+
+  - key: support
+    name: "🎫 Support"
+    permissions: [MANAGE_MESSAGES]
+    color: "#F59E0B"
+    hoist: true
+    mentionable: true
+    position: 80
+
+  - key: helper
+    name: "🤝 Helper"
+    permissions: [MANAGE_MESSAGES]
+    color: "#22C55E"
+    hoist: true
+    mentionable: true
+    position: 70
+
+  - key: event-manager
+    name: "🎪 Event Manager"
+    permissions: []
+    color: "#A855F7"
+    hoist: true
+    mentionable: true
+    position: 60
+
+  - key: member
+    name: "✅ Member"
+    permissions: []
+    color: "#1ABC9C"
+    hoist: true
+    mentionable: false
+    position: 50
+
+  # Role minat — self-role, TANPA izin. Warnanya sengaja lembut supaya
+  # hierarki tetap terbaca (riset: jangan sampai warna role berisik).
+  - key: gamer
+    name: "🎮 Gamer"
+    color: "#95A5A6"
+    hoist: false
+    mentionable: true
+    position: 40
+
+  - key: music-lover
+    name: "🎵 Music Lover"
+    color: "#2ECC71"
+    hoist: false
+    mentionable: true
+    position: 39
+
+  - key: learner
+    name: "📚 Learner"
+    color: "#BBBCBD"
+    hoist: false
+    mentionable: true
+    position: 38
+
+  - key: kreator
+    name: "🎨 Kreator"
+    color: "#ACB3BF"
+    hoist: false
+    mentionable: true
+    position: 37
+
+  - key: night-owl
+    name: "🌙 Night Owl"
+    color: "#202532"
+    hoist: false
+    mentionable: true
+    position: 36
+
+  - key: muted
+    name: "🔇 Muted"
+    permissions: []                   # izin diblokir per-channel, bukan guild-level
+    color: "#5865F2"
+    hoist: false
+    mentionable: false
+    position: 10
+
+# ── Struktur ──────────────────────────────────────────────────────────────────
+categories:
+  # INFORMASI — semua orang bisa melihat, tidak ada yang bisa menulis.
+  # deny = SEND_MESSAGES + SEND_TTS + EMBED_LINKS + ATTACH_FILES = 55296
+  - key: informasi
+    name: "━━ 📢 INFORMASI ━━"
+    overwrites:
+      everyone:
+        deny: [SEND_MESSAGES, SEND_TTS_MESSAGES, EMBED_LINKS, ATTACH_FILES]
+    channels:
+      - key: selamat-datang
+        name: "【👋・selamat-datang】"
+        type: text
+        topic: "Panduan singkat untuk member baru."
+        position: 1
+
+      # type announcement — butuh NEWS. Adapter membuatnya SETELAH Community aktif.
+      - key: pengumuman
+        name: "【📣・pengumuman】"
+        type: announcement
+        topic: "Info resmi server. Hanya staf yang boleh mengirim."
+        position: 2
+        overwrites:
+          moderator: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          event-manager: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+      - key: rules
+        name: "【📜・rules】"
+        type: text
+        topic: "Ketentuan server — baca sebelum beraktivitas."
+        position: 3
+
+      - key: event
+        name: "【📅・event】"
+        type: announcement
+        topic: "Jadwal dan pengumuman event. Bisa di-follow."
+        position: 4
+        overwrites:
+          event-manager: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          moderator: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+      - key: faq
+        name: "【❓・faq】"
+        type: text
+        topic: "Pertanyaan yang sering muncul beserta jawabannya."
+        position: 5
+
+      - key: roles
+        name: "【🎭・roles】"
+        type: text
+        topic: "Ambil role minatmu di sini."
+        position: 6
+
+  # OBROLAN — hanya ✅ Member yang bisa masuk, 🔇 Muted diblokir.
+  # Catatan: key kategori ini sengaja `obrolan-kategori`, bukan `obrolan`,
+  # karena key harus unik di seluruh config dan channel `obrolan` lebih dulu
+  # dirujuk oleh settings.system_channel.
+  - key: obrolan-kategori
+    name: "━━ 💬 OBROLAN ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: perkenalan
+        name: "【👋・perkenalan】"
+        type: text
+        topic: "Perkenalkan diri kamu di sini."
+        slowmode: 3600
+        position: 1
+
+      - key: obrolan
+        name: "【💬・obrolan】"
+        type: text
+        topic: "Ngobrol santai, semua topik boleh."
+        position: 2
+
+      - key: obrolan-ot
+        name: "【🌙・obrolan-ot】"
+        type: text
+        topic: "Obrolan di luar topik utama."
+        position: 3
+
+      - key: media
+        name: "【🖼️・media】"
+        type: text
+        topic: "Bagikan foto, video, dan meme."
+        position: 4
+
+      - key: showcase
+        name: "【🎨・showcase】"
+        type: forum
+        topic: "Pamer karya. Satu thread per karya."
+        position: 5
+
+      - key: bot
+        name: "【🤖・bot】"
+        type: text
+        topic: "Perintah bot dan hasilnya."
+        position: 6
+
+  - key: minat
+    name: "━━ 🎮 MINAT ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: gaming
+        name: "【🎮・gaming】"
+        type: text
+        topic: "Diskusi game, cari tim, bahas update."
+        position: 1
+      - key: musik
+        name: "【🎵・musik】"
+        type: text
+        topic: "Rekomendasi lagu dan playlist."
+        position: 2
+      - key: belajar
+        name: "【📚・belajar】"
+        type: text
+        topic: "Belajar bareng, materi, dan resources."
+        position: 3
+      - key: ide-dan-saran
+        name: "【💡・ide-dan-saran】"
+        type: text
+        topic: "Usul perbaikan server. Dibaca dan dipertimbangkan staf."
+        position: 4
+
+  - key: dukungan
+    name: "━━ 🎫 DUKUNGAN ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: buka-ticket
+        name: "【🎫・buka-ticket】"
+        type: text
+        topic: "Cara membuka ticket. Hanya dibaca."
+        position: 1
+        overwrites:
+          member: { allow: [VIEW_CHANNEL, READ_MESSAGE_HISTORY] }   # baca saja
+      - key: bantuan
+        name: "【🛡️・bantuan】"
+        type: forum
+        topic: "Tanya apa saja. Satu thread per pertanyaan."
+        position: 2
+      - key: arsip
+        name: "【📂・arsip】"
+        type: text
+        topic: "Arsip ticket yang sudah selesai."
+        position: 3
+        overwrites:
+          member:  { allow: [VIEW_CHANNEL, READ_MESSAGE_HISTORY] }
+          support: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+  # Catatan: key kategori `-kategori` agar tidak bentrok dengan channel
+  # `minigame` di dalamnya — key harus unik di seluruh config.
+  - key: minigame-kategori
+    name: "━━ 🎲 MINIGAME ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: minigame
+        name: "【🎲・minigame】"
+        type: text
+        topic: "Arena minigame bot. Adu skor di sini."
+        position: 1
+      - key: command-umum
+        name: "【🤖・command-umum】"
+        type: text
+        topic: "Command bot untuk semua member. Jaga agar tidak spam."
+        position: 2
+      - key: command-staff
+        name: "【⚙️・command-staff】"
+        type: text
+        topic: "Command bot khusus staf (moderasi, setup, log)."
+        position: 3
+        overwrites:
+          # deny VIEW di level channel menimpa allow kategori ✅ Member
+          member:     { deny: [VIEW_CHANNEL] }
+          moderator:  { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          helper:     { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          support:    { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          event-manager: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+  # SUARA — ✅ Member boleh masuk & bicara, 🔇 Muted diblokir speak.
+  - key: suara
+    name: "━━ 🔊 SUARA ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, CONNECT, SPEAK] }
+      muted:    { deny: [CONNECT, SPEAK] }
+    channels:
+      - key: umum
+        name: "【🔊・umum】"
+        type: voice
+        position: 1
+      - key: gaming-vc
+        name: "【🎮・gaming】"
+        type: voice
+        position: 2
+      - key: musik-vc
+        name: "【🎵・musik】"
+        type: voice
+        position: 3
+      - key: nonton
+        name: "【🎬・nonton】"
+        type: voice
+        position: 4
+      - key: afk
+        name: "【💤・afk】"
+        type: voice
+        position: 5
+
+  # STAF — tersembunyi dari semua orang kecuali role staf.
+  # deny = VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY = 68608
+  - key: staf
+    name: "━━ 🛡️ STAF ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY] }
+    channels:
+      - key: staff-chat
+        name: "【🛡️・staff-chat】"
+        type: text
+        topic: "Diskusi internal staf."
+        position: 1
+        overwrites:
+          moderator:      { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          helper:         { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          support:        { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          event-manager:  { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+      - key: mod-log
+        name: "【📋・mod-log】"
+        type: text
+        topic: "Catatan tindakan moderasi."
+        position: 2
+        overwrites:
+          moderator: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+      - key: ticket-staff
+        name: "【🎫・ticket-staff】"
+        type: text
+        topic: "Koordinasi penanganan ticket."
+        position: 3
+        overwrites:
+          support:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          moderator: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+      - key: log-automod
+        name: "【🔍・log-automod】"
+        type: text
+        topic: "Log AutoMod dan alert server."
+        position: 4
+        overwrites:
+          moderator: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }

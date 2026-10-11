@@ -1,0 +1,293 @@
+# gaming.yaml — server gaming / komunitas game
+#
+# Fokus pada LFG (looking for group), voice yang banyak, dan channel per-game.
+# Community aktif supaya pengumuman bisa berupa announcement channel.
+#
+# Jalankan:
+#   python -m bss plan -c ../templates/gaming.yaml -g <GUILD_ID>
+
+version: 1
+guild: "1528939155546181642"          # GANTI dengan guild kamu
+
+settings:
+  verification_level: 2
+  default_message_notifications: 1
+  system_channel: obrolan
+  afk_channel: afk
+  community:
+    enabled: true
+    rules_channel: rules
+    public_updates_channel: staff-chat
+
+roles:
+  - key: owner
+    name: "👑 Owner"
+    permissions: [ADMINISTRATOR]
+    color: "#FFD700"
+    hoist: true
+    mentionable: false
+    position: 100
+
+  - key: admin
+    name: "🛡️ Admin"
+    permissions: [KICK_MEMBERS, BAN_MEMBERS, MANAGE_MESSAGES, MODERATE_MEMBERS, VIEW_AUDIT_LOG]
+    color: "#EF4444"
+    hoist: true
+    mentionable: true
+    position: 90
+
+  - key: mod
+    name: "⚔️ Mod"
+    permissions: [MANAGE_MESSAGES, KICK_MEMBERS]
+    color: "#E67E22"
+    hoist: true
+    mentionable: true
+    position: 80
+
+  - key: event-host
+    name: "🎪 Event Host"
+    permissions: []
+    color: "#9B59B6"
+    hoist: true
+    mentionable: true
+    position: 70
+
+  - key: veteran
+    name: "💎 Veteran"
+    permissions: []
+    color: "#F1C40F"
+    hoist: true
+    mentionable: true
+    position: 60
+
+  - key: member
+    name: "✅ Member"
+    permissions: []
+    color: "#1ABC9C"
+    hoist: true
+    mentionable: false
+    position: 50
+
+  # Role game — self-role, tanpa izin, warna lembut.
+  - key: fps
+    name: "🔫 FPS"
+    color: "#7F8C8D"
+    hoist: false
+    mentionable: true
+    position: 40
+  - key: moba
+    name: "🛡️ MOBA"
+    color: "#7F8C8D"
+    hoist: false
+    mentionable: true
+    position: 39
+  - key: rpg
+    name: "🗡️ RPG"
+    color: "#7F8C8D"
+    hoist: false
+    mentionable: true
+    position: 38
+  - key: survival
+    name: "🌱 Survival"
+    color: "#7F8C8D"
+    hoist: false
+    mentionable: true
+    position: 37
+  - key: casual
+    name: "🎯 Casual"
+    color: "#7F8C8D"
+    hoist: false
+    mentionable: true
+    position: 36
+
+  - key: muted
+    name: "🔇 Muted"
+    permissions: []
+    color: "#5865F2"
+    hoist: false
+    mentionable: false
+    position: 10
+
+categories:
+  - key: info
+    name: "━━ 📢 INFO ━━"
+    overwrites:
+      everyone:
+        deny: [SEND_MESSAGES, SEND_TTS_MESSAGES, EMBED_LINKS, ATTACH_FILES]
+    channels:
+      - key: rules
+        name: "【📜・rules】"
+        type: text
+        topic: "Aturan server — baca sebelum main bareng."
+        position: 1
+      - key: pengumuman
+        name: "【📣・pengumuman】"
+        type: announcement
+        topic: "Info resmi server dan turnamen."
+        position: 2
+        overwrites:
+          admin:        { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          event-host:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+      - key: event
+        name: "【📅・event】"
+        type: announcement
+        topic: "Jadwal turnamen dan event. Bisa di-follow."
+        position: 3
+        overwrites:
+          event-host: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          admin:      { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+      - key: roles
+        name: "【🎭・roles】"
+        type: text
+        topic: "Pilih role game-mu."
+        position: 4
+
+  # Catatan: key kategori `-kategori` agar tidak bentrok dengan channel
+  # `obrolan` di dalamnya — key harus unik di seluruh config.
+  - key: obrolan-kategori
+    name: "━━ 💬 OBROLAN ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: perkenalan
+        name: "【👋・perkenalan】"
+        type: text
+        topic: "Kenalan dan ceritakan game favoritmu."
+        slowmode: 3600
+        position: 1
+      - key: obrolan
+        name: "【💬・obrolan】"
+        type: text
+        topic: "Ngobrol santai."
+        position: 2
+      - key: media
+        name: "【🖼️・media】"
+        type: text
+        topic: "Clip, screenshot, dan meme."
+        position: 3
+      - key: clip
+        name: "【🎬・clip】"
+        type: forum
+        topic: "Pamer momen epik. Satu thread per clip."
+        position: 4
+
+  # LFG — inti server gaming.
+  - key: lfg
+    name: "━━ 🎯 CARI TIM ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: lfg-umum
+        name: "【🎯・lfg-umum】"
+        type: text
+        topic: "Cari tim untuk game apa saja. Slowmode aktif."
+        slowmode: 60
+        position: 1
+      - key: lfg-fps
+        name: "【🔫・lfg-fps】"
+        type: text
+        topic: "Cari tim FPS."
+        slowmode: 60
+        position: 2
+      - key: lfg-moba
+        name: "【🛡️・lfg-moba】"
+        type: text
+        topic: "Cari tim MOBA."
+        slowmode: 60
+        position: 3
+      - key: lfg-rpg
+        name: "【🗡️・lfg-rpg】"
+        type: text
+        topic: "Cari tim RPG / co-op."
+        slowmode: 60
+        position: 4
+
+  - key: bot
+    name: "━━ 🤖 BOT ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: command-umum
+        name: "【🤖・command-umum】"
+        type: text
+        topic: "Perintah bot untuk semua member."
+        position: 1
+      - key: minigame
+        name: "【🎲・minigame】"
+        type: text
+        topic: "Adu skor minigame."
+        position: 2
+      - key: command-staff
+        name: "【⚙️・command-staff】"
+        type: text
+        topic: "Command bot khusus staf."
+        position: 3
+        overwrites:
+          member:     { deny: [VIEW_CHANNEL] }
+          admin:      { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          mod:        { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+
+  - key: suara
+    name: "━━ 🔊 SUARA ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, CONNECT, SPEAK] }
+      muted:    { deny: [CONNECT, SPEAK] }
+    channels:
+      - key: lobby
+        name: "【🔊・lobby】"
+        type: voice
+        position: 1
+      - key: ranked
+        name: "【🏆・ranked】"
+        type: voice
+        position: 2
+      - key: casual-vc
+        name: "【🎮・casual】"
+        type: voice
+        position: 3
+      - key: duel
+        name: "【⚔️・duel】"
+        type: voice
+        position: 4
+      - key: afk
+        name: "【💤・afk】"
+        type: voice
+        position: 5
+
+  - key: staf
+    name: "━━ 🛡️ STAF ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY] }
+    channels:
+      - key: staff-chat
+        name: "【🛡️・staff-chat】"
+        type: text
+        topic: "Diskusi internal staf."
+        position: 1
+        overwrites:
+          admin:      { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          mod:        { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          event-host: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+      - key: mod-log
+        name: "【📋・mod-log】"
+        type: text
+        topic: "Catatan tindakan moderasi."
+        position: 2
+        overwrites:
+          admin: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          mod:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+      - key: turnamen-log
+        name: "【🏆・turnamen-log】"
+        type: text
+        topic: "Hasil dan bracket turnamen."
+        position: 3
+        overwrites:
+          admin:      { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          event-host: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }

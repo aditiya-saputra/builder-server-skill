@@ -1,0 +1,210 @@
+# developer.yaml — server developer / proyek open-source
+#
+# Berbeda dari community: lebih sedikit channel ngobrol, lebih banyak forum
+# dan channel teknis. Cocok untuk proyek open-source, komunitas bahasa
+# pemrograman, atau server tim kecil.
+#
+# Catatan: tanpa Community, channel `announcement` TIDAK bisa dibuat
+# (butuh feature NEWS). Template ini sengaja Community-matikan — kalau mau
+# pengumuman, salin pola `settings.community` dari community.yaml.
+#
+# Jalankan:
+#   python -m bss plan -c ../templates/developer.yaml -g <GUILD_ID>
+
+version: 1
+guild: "1528939155546181642"          # GANTI dengan guild kamu
+
+settings:
+  verification_level: 2
+  default_message_notifications: 1
+  system_channel: general
+  afk_channel: afk
+
+roles:
+  - key: maintainer
+    name: "🧑‍💻 Maintainer"
+    permissions: [ADMINISTRATOR]
+    color: "#5865F2"
+    hoist: true
+    mentionable: false
+    position: 100
+
+  - key: core-dev
+    name: "⚡ Core Dev"
+    permissions: [MANAGE_MESSAGES, KICK_MEMBERS]
+    color: "#00A8FF"
+    hoist: true
+    mentionable: true
+    position: 90
+
+  - key: contributor
+    name: "🔧 Contributor"
+    permissions: []
+    color: "#2ECC71"
+    hoist: true
+    mentionable: true
+    position: 80
+
+  - key: reviewer
+    name: "👀 Reviewer"
+    permissions: [MANAGE_MESSAGES]
+    color: "#F39C12"
+    hoist: true
+    mentionable: true
+    position: 70
+
+  - key: member
+    name: "✅ Member"
+    permissions: []
+    color: "#95A5A6"
+    hoist: true
+    mentionable: false
+    position: 50
+
+  - key: muted
+    name: "🔇 Muted"
+    permissions: []
+    color: "#5865F2"
+    hoist: false
+    mentionable: false
+    position: 10
+
+categories:
+  - key: mulai
+    name: "━━ 🚀 MULAI DI SINI ━━"
+    overwrites:
+      everyone:
+        deny: [SEND_MESSAGES, SEND_TTS_MESSAGES, EMBED_LINKS, ATTACH_FILES]
+    channels:
+      - key: readme
+        name: "【📖・readme】"
+        type: text
+        topic: "Ringkasan proyek, cara kontribusi, link penting."
+        position: 1
+      - key: changelog
+        name: "【🆕・changelog】"
+        type: text
+        topic: "Rilis dan perubahan. Ikuti kalau mau tahu update."
+        position: 2
+      - key: aturan
+        name: "【📜・aturan】"
+        type: text
+        topic: "Kode etik kontribusi."
+        position: 3
+
+  # Forum-heavy — satu thread per issue / PR / pertanyaan.
+  - key: teknis
+    name: "━━ 💻 TEKNIS ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: general
+        name: "【💬・general】"
+        type: text
+        topic: "Diskusi teknis umum."
+        position: 1
+      - key: bantuan
+        name: "【🆘・bantuan】"
+        type: forum
+        topic: "Pertanyaan teknis. Cari dulu sebelum bertanya."
+        position: 2
+      - key: code-review
+        name: "【🔍・code-review】"
+        type: forum
+        topic: "Tempel potongan kode untuk direview."
+        position: 3
+      - key: show-and-tell
+        name: "【🛠️・show-and-tell】"
+        type: forum
+        topic: "Pamer proyek dan karya."
+        position: 4
+
+  - key: proyek
+    name: "━━ 📦 PROYEK ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: pengumuman-dev
+        name: "【📢・pengumuman-dev】"
+        type: text
+        topic: "Keputusan arsitektur dan RFC."
+        position: 1
+        overwrites:
+          everyone: { deny: [SEND_MESSAGES, SEND_TTS_MESSAGES, EMBED_LINKS, ATTACH_FILES] }
+          maintainer: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          core-dev:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+      - key: rfc
+        name: "【📐・rfc】"
+        type: forum
+        topic: "Request For Comments — usulan perubahan besar."
+        position: 2
+      - key: bug-report
+        name: "【🐛・bug-report】"
+        type: forum
+        topic: "Laporan bug. Sertakan langkah reproduksi."
+        position: 3
+
+  - key: santai
+    name: "━━ 🌙 SANTAI ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, EMBED_LINKS, ATTACH_FILES, READ_MESSAGE_HISTORY, ADD_REACTIONS] }
+      muted:    { deny: [ADD_REACTIONS, SEND_MESSAGES, SEND_TTS_MESSAGES] }
+    channels:
+      - key: off-topic
+        name: "【🎲・off-topic】"
+        type: text
+        topic: "Ngobrol di luar topik kerja."
+        position: 1
+      - key: bot
+        name: "【🤖・bot】"
+        type: text
+        topic: "Perintah bot dan hasilnya."
+        position: 2
+
+  - key: voice
+    name: "━━ 🔊 VOICE ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL] }
+      member:   { allow: [VIEW_CHANNEL, CONNECT, SPEAK] }
+      muted:    { deny: [CONNECT, SPEAK] }
+    channels:
+      - key: pairing
+        name: "【👥・pairing】"
+        type: voice
+        topic: "Pair programming / screen sharing."
+        position: 1
+      - key: coworking
+        name: "【☕・coworking】"
+        type: voice
+        topic: "Kerja bareng diam-diam."
+        position: 2
+      - key: afk
+        name: "【💤・afk】"
+        type: voice
+        position: 3
+
+  - key: staf
+    name: "━━ 🔐 MAINTAINER ━━"
+    overwrites:
+      everyone: { deny: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY] }
+    channels:
+      - key: staf-chat
+        name: "【🔐・staf-chat】"
+        type: text
+        topic: "Diskusi internal maintainer."
+        position: 1
+        overwrites:
+          maintainer: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+          core-dev:   { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
+      - key: release-log
+        name: "【📋・release-log】"
+        type: text
+        topic: "Catatan rilis dan keputusan."
+        position: 2
+        overwrites:
+          maintainer: { allow: [VIEW_CHANNEL, SEND_MESSAGES, READ_MESSAGE_HISTORY, EMBED_LINKS, ATTACH_FILES] }
