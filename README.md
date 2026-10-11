@@ -16,9 +16,9 @@ lalu memperbaiki selisihnya secara bertahap.
 │  │ (agent AI)│   │ (Python REST)│   │ (diff actual │        │
 │  │           │   │              │   │   vs wanted) │        │
 │  └───────────┘   └──────────────┘   └──────────────┘        │
-│   merencanakan    mengeksekusi      memeriksa hasil          │
-│   dari bahasa     tindakan yang                                    │
-│   alami           tervalidasi                                     │
+│   merencanakan    mengeksekusi      memeriksa hasil         │
+│   dari bahasa     tindakan yang                             │
+│   alami           tervalidasi                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
